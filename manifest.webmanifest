@@ -1,7 +1,7 @@
 {
-  "name": "Github Page PWA",
-  "short_name": "GPPWA",
-  "description": "Github Page as a Progressive Web App",
+  "name": "Sourdough Calculator",
+  "short_name": "SD Calculator",
+  "description": "Sourdough Calculator PWA application",
   "scope": "/github-page-pwa/",
   "start_url": "/github-page-pwa/",
   "background_color": "#ffffff",
