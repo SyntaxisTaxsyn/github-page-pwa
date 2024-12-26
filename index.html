@@ -7,16 +7,108 @@
   <link rel="canonical" href="https://syntaxistaxsyn.github.io/github-page-pwa/" />
   <link rel="manifest" href="/github-page-pwa/manifest.webmanifest">
   <link rel="stylesheet" href="css/styles.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <style>
+        /* Basic reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Full-page background */
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-image: url('your-image-url.jpg'); /* Add your image URL here */
+            background-size: cover;   /* Make the background cover the entire page */
+            background-position: center;  /* Center the background image */
+            background-repeat: no-repeat; /* Prevent the image from repeating */
+        }
+
+        /* Content area */
+        .content {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(240, 240, 240, 0.7);  /* Slightly transparent background to allow image to show through */
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+        }
+
+        .page {
+            display: none;
+            width: 100%;
+            text-align: center;
+        }
+
+        .active {
+            display: block;
+        }
+
+        /* Bottom app bar */
+        .app-bar {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background-color: #333;
+            padding: 20px 0;  /* Increased padding for a taller app bar */
+            height: 80px;
+        }
+
+        .app-bar i {
+            font-size: 25px;
+            color: white;
+            transition: color 0.3s;
+        }
+
+        .app-bar i:hover {
+            color: #f0f0f0;
+        }
+    </style>
 </head>
 <body>
  
-  <h1>GitHub page PWA template</h1>
-  <p>
-    sample text
-  <p>
-  </br>
-  some more text
-  <button onclick="boo()">say boo</button>
+   <div class="content">
+        <!-- Content for each page, only one will be visible at a time -->
+        <div id="home" class="page active">
+            <h1>Home Page</h1>
+            <p>Welcome to the home page. This is the default content displayed.</p>
+        </div>
+        <div id="search" class="page">
+            <h1>Search Page</h1>
+            <p>This is the search page. You can search for content here.</p>
+        </div>
+        <div id="notifications" class="page">
+            <h1>Notifications</h1>
+            <p>Here are your notifications. You'll be alerted for updates.</p>
+        </div>
+        <div id="profile" class="page">
+            <h1>Profile</h1>
+            <p>This is your profile page. Edit your settings and information here.</p>
+        </div>
+        <div id="info" class="page">
+            <h1>Info</h1>
+            <p>This is the information page</p>
+        </div>
+    </div>
+
+    <!-- App bar with icons -->
+    <div class="app-bar">
+        <a href="javascript:void(0);" onclick="changeContent('home')"><i class="fa-solid fa-percent"></i></a>
+        <a href="javascript:void(0);" onclick="changeContent('search')"><i class="fa-solid fa-weight-scale"></i></a>
+        <a href="javascript:void(0);" onclick="changeContent('notifications')"><i class="fa-solid fa-list-check"></i></a>
+        <a href="javascript:void(0);" onclick="changeContent('profile')"><i class="fa-solid fa-arrow-right-arrow-left"></i></a>
+        <a href="javascript:void(0);" onclick="changeContent('info')"><i class="fa-solid fa-info"></i></a
+    </div>
+
 
   <script>
       if (navigator.serviceWorker) {
@@ -28,10 +120,16 @@
   </script>
   <script src="js/app.js"></script>
   <script>
-   function boo()
-   {
-    alert("boo");
-   }
+   / Function to switch content based on the selected page
+        function changeContent(pageId) {
+            // Hide all pages
+            const pages = document.querySelectorAll('.page');
+            pages.forEach(page => page.classList.remove('active'));
+
+            // Show the selected page
+            const activePage = document.getElementById(pageId);
+            activePage.classList.add('active');
+        }
   </script>
 </body>
 </html>
