@@ -3,53 +3,139 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GPS Coordinates</title>
+  <title>GPS Coordinates with Description</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       text-align: center;
       margin: 50px;
     }
-    #coordinates {
+    #table-container {
       margin-top: 20px;
-      font-size: 18px;
+    }
+    table {
+      margin: 20px auto;
+      border-collapse: collapse;
+      width: 80%;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: center;
+    }
+    th {
+      background-color: #f4f4f4;
+    }
+    #download-button {
+      margin-top: 20px;
     }
   </style>
 </head>
 <body>
-  <h1>Get GPS Coordinates</h1>
-  <button id="get-coordinates">Get Coordinates</button>
-  <div id="coordinates"></div>
+  <h1>GPS Coordinates with Description</h1>
+  <div>
+    <input type="text" id="description" placeholder="Enter a description" />
+    <button id="get-coordinates">Add Location</button>
+  </div>
+  <div id="table-container">
+    <table id="location-table">
+      <thead>
+        <tr>
+          <th>Description</th>
+          <th>Latitude</th>
+          <th>Longitude</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Rows will be added here dynamically -->
+      </tbody>
+    </table>
+    <button id="download-button">Download Data</button>
+  </div>
 
   <script>
-    // Get the button and output div
+    // Get DOM elements
     const button = document.getElementById('get-coordinates');
-    const output = document.getElementById('coordinates');
+    const downloadButton = document.getElementById('download-button');
+    const descriptionInput = document.getElementById('description');
+    const tableBody = document.querySelector('#location-table tbody');
 
-    // Function to get and display coordinates
+    // Store captured data
+    const data = [];
+
+    // Function to add a new row to the table
+    const addRowToTable = (description, latitude, longitude) => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${description}</td>
+        <td>${latitude}</td>
+        <td>${longitude}</td>
+      `;
+      tableBody.appendChild(row);
+
+      // Add data to the array
+      data.push({ description, latitude, longitude });
+    };
+
+    // Function to get and save coordinates with description
     const getCoordinates = () => {
+      const description = descriptionInput.value.trim();
+
+      if (!description) {
+        alert('Please enter a description.');
+        return;
+      }
+
       if ('geolocation' in navigator) {
         navigator.geolocation.getCurrentPosition(
           (position) => {
             const { latitude, longitude } = position.coords;
-            output.innerHTML = `<p>Latitude: ${latitude}</p><p>Longitude: ${longitude}</p>`;
+            addRowToTable(description, latitude.toFixed(6), longitude.toFixed(6));
+            descriptionInput.value = ''; // Clear the input field after adding
           },
           (error) => {
-            output.innerHTML = `<p>Error: ${error.message}</p>`;
+            alert(`Error getting location: ${error.message}`);
           },
           {
-            enableHighAccuracy: true, // Use high accuracy if available
-            timeout: 10000, // Timeout after 10 seconds
-            maximumAge: 0 // Don't use cached position
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0,
           }
         );
       } else {
-        output.innerHTML = '<p>Geolocation is not supported by your browser.</p>';
+        alert('Geolocation is not supported by your browser.');
       }
     };
 
-    // Add event listener to button
+    // Function to download data as CSV
+    const downloadData = () => {
+      if (data.length === 0) {
+        alert('No data to download.');
+        return;
+      }
+
+      // Generate CSV content
+      const csvRows = ['Description,Latitude,Longitude']; // Header row
+      data.forEach((entry) => {
+        csvRows.push(`${entry.description},${entry.latitude},${entry.longitude}`);
+      });
+
+      const csvContent = csvRows.join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+
+      // Create a temporary link and trigger download
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'locations.csv';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    };
+
+    // Add event listeners
     button.addEventListener('click', getCoordinates);
+    downloadButton.addEventListener('click', downloadData);
   </script>
 </body>
 </html>
