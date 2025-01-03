@@ -1,6 +1,6 @@
 {
-  "name": "Sourdough Calculator",
-  "short_name": "SD Calculator",
+  "name": "GPS_Test",
+  "short_name": "GPS_Test",
   "description": "Sourdough Calculator PWA application",
   "scope": "/github-page-pwa/",
   "start_url": "/github-page-pwa/",
