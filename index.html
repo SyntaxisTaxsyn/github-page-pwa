@@ -110,6 +110,14 @@
     <button id="find-nearest">Find Nearest Location</button>
     <p id="nearest-result"></p>
   </div>
+  
+  <div class="button-container">
+    <button id="startTimer">Test Timed Notification</button>
+  </div>
+  
+  <div class="button-container">
+    <button id="triggerButton">Test Notification</button>
+  </div>
 
   <div id="table-container">
     <table id="location-table">
@@ -320,6 +328,62 @@
     addButton.addEventListener('click', getCoordinates);
     downloadButton.addEventListener('click', downloadData);
     findNearestButton.addEventListener('click', findNearestLocation);
+    
+    // Function to request notification permission
+    async function requestNotificationPermission() {
+      if (Notification.permission === "granted") {
+        console.log("Notification permission already granted.");
+        return true;
+      } else if (Notification.permission === "default") {
+        const permission = await Notification.requestPermission();
+        if (permission === "granted") {
+          console.log("Notification permission granted.");
+          return true;
+        } else {
+          console.log("Notification permission denied.");
+          return false;
+        }
+      } else {
+        console.log("Notification permission denied.");
+        return false;
+      }
+    }
+
+    // Trigger notification on a timer
+    async function triggerNotificationOnTimer() {
+      const hasPermission = await requestNotificationPermission();
+      if (!hasPermission) return;
+
+      console.log("Starting long-running task...");
+
+      // Simulate a long-running task with a 10-second timer
+      setTimeout(() => {
+        new Notification("Task Complete", {
+          body: "Your long-running task has finished successfully!",
+          icon: "https://github.com/SyntaxisTaxsyn/github-page-pwa/blob/f3715600ec1032d9cbdc3bb18bc48cfe48c3897b/img/IMG_0898.jpeg" // Replace with your app icon URL
+        });
+        console.log("Notification sent!");
+      }, 10000); // 10 seconds
+    }
+
+    // Trigger notification on a button click
+    async function triggerNotificationOnEvent() {
+      const hasPermission = await requestNotificationPermission();
+      if (!hasPermission) return;
+
+      document.getElementById("triggerButton").addEventListener("click", () => {
+        new Notification("Action Triggered", {
+          body: "You clicked the button, so here’s your notification!",
+          icon: "https://example.com/icon.png" // Replace with your app icon URL
+        });
+        console.log("Notification sent on button click!");
+      });
+    }
+
+    // Initialize listeners
+    document.getElementById("startTimer").addEventListener("click", triggerNotificationOnTimer);
+    triggerNotificationOnEvent();
+ 
   </script>
 </body>
 </html>
