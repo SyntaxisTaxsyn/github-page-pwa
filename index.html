@@ -7,36 +7,110 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      text-align: center;
-      margin: 50px;
+      margin: 20px;
     }
+
+    h1 {
+      text-align: center;
+    }
+
+    .input-container, .button-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 10px 0;
+    }
+
+    input, button {
+      width: 90%;
+      max-width: 400px;
+      margin: 5px 0;
+      padding: 10px;
+      font-size: 16px;
+    }
+
+    button {
+      cursor: pointer;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    #nearest-result {
+      margin: 10px 0;
+      font-weight: bold;
+      text-align: center;
+    }
+
     #table-container {
+      overflow-x: auto;
       margin-top: 20px;
     }
+
     table {
-      margin: 20px auto;
+      width: 100%;
       border-collapse: collapse;
-      width: 80%;
+      margin: 0 auto;
     }
+
     th, td {
       border: 1px solid #ddd;
-      padding: 10px;
+      padding: 8px;
       text-align: center;
     }
+
     th {
       background-color: #f4f4f4;
     }
-    #download-button {
-      margin-top: 20px;
+
+    td {
+      word-wrap: break-word;
+    }
+
+    @media (max-width: 600px) {
+      input, button {
+        font-size: 14px;
+        padding: 8px;
+      }
+
+      table {
+        font-size: 12px;
+      }
+    }
+
+    input[type="file"] {
+      display: none; /* Hidden file input */
     }
   </style>
 </head>
 <body>
   <h1>GPS Coordinates with Description</h1>
-  <div>
+
+  <div class="input-container">
     <input type="text" id="description" placeholder="Enter a description" />
     <button id="get-coordinates">Add Location</button>
   </div>
+
+  <div class="input-container">
+    <button id="upload-button">Upload CSV</button>
+    <input type="file" id="upload-file" accept=".csv" />
+  </div>
+
+  <div class="input-container">
+    <input type="text" id="filename" placeholder="Enter output file name (e.g., locations.csv)" />
+    <button id="download-button">Download Data</button>
+  </div>
+
+  <div class="button-container">
+    <button id="find-nearest">Find Nearest Location</button>
+    <p id="nearest-result"></p>
+  </div>
+
   <div id="table-container">
     <table id="location-table">
       <thead>
@@ -50,18 +124,40 @@
         <!-- Rows will be added here dynamically -->
       </tbody>
     </table>
-    <button id="download-button">Download Data</button>
   </div>
 
   <script>
     // Get DOM elements
-    const button = document.getElementById('get-coordinates');
+    const addButton = document.getElementById('get-coordinates');
+    const uploadButton = document.getElementById('upload-button');
+    const uploadFileInput = document.getElementById('upload-file');
     const downloadButton = document.getElementById('download-button');
+    const findNearestButton = document.getElementById('find-nearest');
+    const nearestResult = document.getElementById('nearest-result');
+    const filenameInput = document.getElementById('filename');
     const descriptionInput = document.getElementById('description');
     const tableBody = document.querySelector('#location-table tbody');
 
     // Store captured data
-    const data = [];
+    let data = [];
+
+    // Function to calculate distance using Haversine formula
+    const calculateDistance = (lat1, lon1, lat2, lon2) => {
+      const toRadians = (deg) => (deg * Math.PI) / 180;
+
+      const R = 6371; // Earth's radius in kilometers
+      const dLat = toRadians(lat2 - lat1);
+      const dLon = toRadians(lon2 - lon1);
+
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(toRadians(lat1)) *
+          Math.cos(toRadians(lat2)) *
+          Math.sin(dLon / 2) *
+          Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return R * c; // Distance in kilometers
+    };
 
     // Function to add a new row to the table
     const addRowToTable = (description, latitude, longitude) => {
@@ -107,12 +203,53 @@
       }
     };
 
+    // Function to upload and load CSV
+    const uploadCSV = (file) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const csvContent = e.target.result;
+        const rows = csvContent.split('\n').filter((row) => row.trim());
+
+        // Clear existing data and table rows
+        data = [];
+        tableBody.innerHTML = '';
+
+        // Parse CSV rows
+        rows.forEach((row, index) => {
+          if (index === 0) return; // Skip the header row
+          const [description, latitude, longitude] = row.split(',');
+          if (description && latitude && longitude) {
+            addRowToTable(description, parseFloat(latitude), parseFloat(longitude));
+          }
+        });
+
+        alert('CSV data uploaded successfully.');
+      };
+
+      reader.readAsText(file);
+    };
+
+    // Function to handle file selection and upload
+    uploadButton.addEventListener('click', () => {
+      uploadFileInput.click(); // Trigger file input click
+    });
+
+    uploadFileInput.addEventListener('change', () => {
+      const file = uploadFileInput.files[0];
+      if (file) {
+        uploadCSV(file);
+      }
+    });
+
     // Function to download data as CSV
     const downloadData = () => {
       if (data.length === 0) {
         alert('No data to download.');
         return;
       }
+
+      // Get filename from input
+      const filename = filenameInput.value.trim() || 'locations.csv';
 
       // Generate CSV content
       const csvRows = ['Description,Latitude,Longitude']; // Header row
@@ -127,15 +264,62 @@
       // Create a temporary link and trigger download
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'locations.csv';
+      a.download = filename;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
     };
 
+    // Function to find the nearest location
+    const findNearestLocation = () => {
+      if (data.length === 0) {
+        alert('No locations stored to compare.');
+        return;
+      }
+
+      if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude: currentLat, longitude: currentLon } = position.coords;
+
+            let nearest = null;
+            let minDistance = Infinity;
+
+            data.forEach((entry) => {
+              const distance = calculateDistance(
+                currentLat,
+                currentLon,
+                entry.latitude,
+                entry.longitude
+              );
+
+              if (distance < minDistance) {
+                minDistance = distance;
+                nearest = entry;
+              }
+            });
+
+            if (nearest) {
+              nearestResult.textContent = `Nearest Location: ${nearest.description} (~${minDistance.toFixed(
+                2
+              )} km away)`;
+            } else {
+              nearestResult.textContent = 'No nearby locations found.';
+            }
+          },
+          (error) => {
+            alert(`Error getting current location: ${error.message}`);
+          }
+        );
+      } else {
+        alert('Geolocation is not supported by your browser.');
+      }
+    };
+
     // Add event listeners
-    button.addEventListener('click', getCoordinates);
+    addButton.addEventListener('click', getCoordinates);
     downloadButton.addEventListener('click', downloadData);
+    findNearestButton.addEventListener('click', findNearestLocation);
   </script>
 </body>
 </html>
