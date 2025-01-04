@@ -1,7 +1,7 @@
 {
-  "name": "GPS_Test",
-  "short_name": "GPS_Test",
-  "description": "Sourdough Calculator PWA application",
+  "name": "GPS_Locate",
+  "short_name": "GPS_Locate",
+  "description": "GPS Locate PWA application",
   "scope": "/github-page-pwa/",
   "start_url": "/github-page-pwa/",
   "background_color": "#ffffff",
@@ -9,7 +9,7 @@
   "display": "standalone", 
   "icons": [
       {
-        "src": "/github-page-pwa/img/IMG_0885.jpeg",
+        "src": "/github-page-pwa/img/IMG_0898.jpeg",
         "type": "image/jpeg",
         "sizes": "1165x1319"
       }
