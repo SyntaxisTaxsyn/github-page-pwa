@@ -90,7 +90,7 @@
         navigator.geolocation.getCurrentPosition(
           (position) => {
             const { latitude, longitude } = position.coords;
-            addRowToTable(description, latitude.toFixed(6), longitude.toFixed(6));
+            addRowToTable(description, latitude, longitude);
             descriptionInput.value = ''; // Clear the input field after adding
           },
           (error) => {
@@ -99,7 +99,7 @@
           {
             enableHighAccuracy: true,
             timeout: 60000,
-            maximumAge: 10,
+            maximumAge: 0,
           }
         );
       } else {
