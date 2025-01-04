@@ -1,6 +1,6 @@
 var GHPATH = '/github-page-pwa';
-var APP_PREFIX = 'SD Calculator_';
-var VERSION = 'version_009';
+var APP_PREFIX = 'Geo Locate_';
+var VERSION = 'version_010';
 var URLS = [    
   `${GHPATH}/`,
   `${GHPATH}/index.html`,
