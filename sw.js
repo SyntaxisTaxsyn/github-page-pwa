@@ -1,6 +1,6 @@
 var GHPATH = '/github-page-pwa';
 var APP_PREFIX = 'Geo Locate_';
-var VERSION = 'version_011';
+var VERSION = 'version_012';
 var URLS = [    
   `${GHPATH}/`,
   `${GHPATH}/index.html`,
